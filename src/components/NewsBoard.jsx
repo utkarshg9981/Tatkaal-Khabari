@@ -6,18 +6,28 @@ const NewsBoard = ({category}) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        let url = `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=${import.meta.env.VITE_API_KEY}`;
+        const url = `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=${import.meta.env.VITE_API_KEY}`;
         
         fetch(url)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.json();
             })
-            .then(data => setArticles(data.articles))
-            .catch(error => setError(error.message));
+            .then(data => {
+                console.log("API Data:", data); // Debug: log data
+                if (data.status !== "ok") {
+                    throw new Error(`API error: ${data.message || "Unknown error"}`);
+                }
+                setArticles(data.articles);
+            })
+            .catch(error => {
+                console.error("Fetch error:", error.message); // Debug: log error
+                setError(error.message);
+            });
     }, [category]);
+    
 
     if (error) {
         return <div>Error: {error}</div>;
